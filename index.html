@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kun Tartibi</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #12121a;
+  --bg3: #1a1a26;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0f5;
+  --muted: #7070a0;
+  --accent: #6c63ff;
+  --accent2: #4ecdc4;
+  --warn: #f9a825;
+  --danger: #ff5252;
+  --success: #69f0ae;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Noto Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+
+/* NAV */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--border); display: flex; z-index: 100; }
+.nav-btn { flex: 1; padding: 12px 0 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 10px; font-family: var(--sans); letter-spacing: 0.05em; transition: color 0.2s; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* PAGES */
+.page { display: none; padding: 0 0 80px; min-height: 100vh; }
+.page.active { display: block; }
+
+/* HOME PAGE */
+.hero { padding: 48px 20px 24px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%); pointer-events: none; }
+.greeting { font-size: 13px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.1em; margin-bottom: 8px; }
+.time-display { font-family: var(--mono); font-size: 52px; font-weight: 700; color: var(--text); letter-spacing: -2px; line-height: 1; }
+.date-display { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+.current-block { margin: 0 16px 16px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 16px; position: relative; overflow: hidden; }
+.current-block::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 3px 0 0 3px; }
+.cb-label { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.12em; margin-bottom: 6px; }
+.cb-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.cb-sub { font-size: 12px; color: var(--muted); }
+.cb-badge { display: inline-block; font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 20px; margin-top: 8px; }
+.cb-badge.warn { background: rgba(249,168,37,0.15); color: var(--warn); }
+.cb-badge.dars { background: rgba(78,205,196,0.15); color: var(--accent2); }
+.cb-badge.ibod { background: rgba(108,99,255,0.15); color: var(--accent); }
+
+.section-title { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.12em; padding: 0 20px; margin-bottom: 10px; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 20px; }
+.stat-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; text-align: center; }
+.stat-n { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+.stat-l { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.05em; }
+.stat-n.green { color: var(--success); }
+.stat-n.amber { color: var(--warn); }
+.stat-n.red { color: var(--danger); }
+
+/* PROGRESS */
+.prog-wrap { margin: 0 16px 20px; }
+.prog-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.prog-bar { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 0.5s; }
+
+/* ALERT BANNER */
+.alert-banner { margin: 0 16px 16px; border-radius: 12px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.alert-banner.dars { background: rgba(78,205,196,0.1); border: 1px solid rgba(78,205,196,0.2); }
+.alert-banner.warn { background: rgba(249,168,37,0.1); border: 1px solid rgba(249,168,37,0.25); }
+.alert-banner.ibod { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.2); }
+.alert-icon { font-size: 20px; flex-shrink: 0; }
+.alert-text { font-size: 13px; line-height: 1.5; }
+.alert-text strong { display: block; margin-bottom: 2px; }
+
+/* JADVAL PAGE */
+.day-pills { display: flex; gap: 8px; padding: 20px 16px 12px; overflow-x: auto; scrollbar-width: none; }
+.day-pills::-webkit-scrollbar { display: none; }
+.day-pill { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border2); font-size: 12px; cursor: pointer; white-space: nowrap; background: transparent; color: var(--muted); font-family: var(--sans); transition: all 0.2s; }
+.day-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.tl { padding: 0 16px; }
+.tl-sec { margin-bottom: 20px; }
+.tl-sec-title { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.12em; margin-bottom: 10px; padding-left: 60px; }
+.tl-item { display: flex; gap: 0; margin-bottom: 6px; position: relative; }
+.tl-time { width: 52px; font-size: 11px; color: var(--muted); font-family: var(--mono); padding-top: 14px; text-align: right; flex-shrink: 0; }
+.tl-line { width: 28px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 18px; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tl-connector { width: 1px; flex: 1; background: var(--border); margin-top: 4px; }
+.tl-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; margin-bottom: 0; }
+.tl-card:active { transform: scale(0.98); }
+.tl-card.done { opacity: 0.4; }
+.tl-card.done .tl-title { text-decoration: line-through; }
+.tl-card.new-task { border-left: 2px solid var(--success); }
+.tl-card.warn-task { border-left: 2px solid var(--warn); }
+.tl-card.dars-task { border-left: 2px solid var(--accent2); }
+.tl-card.ibod-task { border-left: 2px solid var(--accent); }
+.tl-card.limit-task { border-left: 2px solid var(--danger); }
+.tl-top { display: flex; justify-content: space-between; align-items: center; }
+.tl-title { font-size: 13px; font-weight: 500; }
+.tl-badge { font-size: 9px; font-family: var(--mono); padding: 2px 7px; border-radius: 10px; }
+.tl-badge.new-b { background: rgba(105,240,174,0.15); color: var(--success); }
+.tl-badge.warn-b { background: rgba(249,168,37,0.15); color: var(--warn); }
+.tl-badge.dars-b { background: rgba(78,205,196,0.15); color: var(--accent2); }
+.tl-badge.ibod-b { background: rgba(108,99,255,0.15); color: var(--accent); }
+.tl-badge.limit-b { background: rgba(255,82,82,0.15); color: var(--danger); }
+.tl-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.tl-check { font-size: 14px; color: var(--muted); }
+.tl-check.done { color: var(--success); }
+
+/* ANIME TIMER PAGE */
+.anime-page { padding: 20px 16px 80px; }
+.anime-hero { text-align: center; padding: 30px 0 24px; }
+.anime-hero h2 { font-family: var(--mono); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.anime-hero p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.timer-circle { width: 180px; height: 180px; margin: 24px auto; position: relative; }
+.timer-svg { transform: rotate(-90deg); }
+.timer-bg { fill: none; stroke: var(--bg3); stroke-width: 8; }
+.timer-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.timer-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.timer-num { font-family: var(--mono); font-size: 36px; font-weight: 700; }
+.timer-lbl { font-size: 11px; color: var(--muted); }
+.ep-counter { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+.ep-dot { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; color: var(--muted); transition: all 0.3s; }
+.ep-dot.watched { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ep-dot.current { border-color: var(--accent); color: var(--accent); }
+.btn-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.btn-main { padding: 12px 28px; border-radius: 30px; border: none; font-family: var(--mono); font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-main.primary { background: var(--accent); color: #fff; }
+.btn-main.secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+.btn-main.danger { background: var(--danger); color: #fff; }
+.anime-rule { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 8px; }
+.anime-rule p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.anime-rule strong { color: var(--text); display: block; margin-bottom: 6px; }
+.blocked-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; padding: 30px; text-align: center; }
+.blocked-overlay h2 { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--danger); margin-bottom: 12px; }
+.blocked-overlay p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+.blocked-big { font-size: 64px; margin-bottom: 16px; }
+.blocked-overlay.hidden { display: none; }
+
+/* VAZIFALAR */
+.vazifa-page { padding: 20px 16px 80px; }
+.vazifa-input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.vazifa-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: var(--sans); font-size: 14px; outline: none; }
+.vazifa-input:focus { border-color: var(--accent); }
+.vazifa-add-btn { background: var(--accent); border: none; border-radius: 10px; width: 44px; height: 44px; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.vazifa-list { display: flex; flex-direction: column; gap: 8px; }
+.v-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.v-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; cursor: pointer; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.v-check.done-v { background: var(--success); border-color: var(--success); }
+.v-text { flex: 1; font-size: 14px; line-height: 1.5; }
+.v-text.done-v { text-decoration: line-through; opacity: 0.4; }
+.v-del { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0; }
+.v-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 40px; margin-bottom: 10px; }
+.section-sub { font-size: 11px; color: var(--muted); padding: 0 20px; margin-bottom: 16px; }
+.seg-tabs { display: flex; background: var(--bg2); border-radius: 10px; padding: 3px; margin-bottom: 16px; }
+.seg-tab { flex: 1; padding: 8px; text-align: center; border-radius: 8px; font-size: 12px; cursor: pointer; color: var(--muted); transition: all 0.2s; border: none; background: none; font-family: var(--sans); }
+.seg-tab.active { background: var(--bg3); color: var(--text); }
+
+/* SOZLAMALAR */
+.soz-page { padding: 20px 16px 80px; }
+.soz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.soz-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 14px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.08em; }
+.soz-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.soz-row:last-child { border-bottom: none; padding-bottom: 0; }
+.soz-row:first-of-type { padding-top: 0; }
+.soz-label { font-size: 14px; }
+.soz-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.toggle { width: 44px; height: 26px; background: var(--bg3); border-radius: 13px; position: relative; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border2); flex-shrink: 0; }
+.toggle.on { background: var(--accent); border-color: var(--accent); }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+.toggle.on::after { left: 20px; }
+.soz-time { font-family: var(--mono); font-size: 14px; color: var(--accent); background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 6px 10px; }
+.page-title { font-family: var(--mono); font-size: 18px; font-weight: 700; padding: 24px 16px 16px; letter-spacing: -0.5px; }
+
+/* ALARM POPUP */
+.alarm-popup { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 998; padding: 30px; text-align: center; }
+.alarm-popup.hidden { display: none; }
+.alarm-icon { font-size: 60px; margin-bottom: 20px; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.alarm-popup h2 { font-family: var(--mono); font-size: 24px; font-weight: 700; margin-bottom: 10px; color: var(--accent); }
+.alarm-popup p { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+.btn-dismiss { padding: 14px 40px; background: var(--accent); color: #fff; border: none; border-radius: 30px; font-family: var(--mono); font-size: 14px; cursor: pointer; }
+
+/* DARS WARNING */
+.dars-warning { position: fixed; bottom: 90px; left: 16px; right: 16px; background: var(--bg2); border: 1px solid rgba(78,205,196,0.4); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; z-index: 90; transform: translateY(20px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+.dars-warning.show { transform: translateY(0); opacity: 1; pointer-events: all; }
+.dw-icon { font-size: 22px; flex-shrink: 0; }
+.dw-text { flex: 1; font-size: 12px; line-height: 1.5; color: var(--accent2); }
+.dw-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="greeting" id="greeting">ASSALOMU ALAYKUM</div>
+    <div class="time-display" id="clock">00:00</div>
+    <div class="date-display" id="datestr"></div>
+  </div>
+
+  <div class="current-block" id="current-block">
+    <div class="cb-label">HOZIRGI VAQT</div>
+    <div class="cb-title" id="cb-title">Yuklanmoqda...</div>
+    <div class="cb-sub" id="cb-sub"></div>
+    <div id="cb-badge"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-n green" id="s-done">0</div><div class="stat-l">BAJARILDI</div></div>
+    <div class="stat-box"><div class="stat-n amber" id="s-left">0</div><div class="stat-l">QOLDI</div></div>
+    <div class="stat-box"><div class="stat-n" id="s-pct" style="color:var(--accent)">0%</div><div class="stat-l">PROGRESS</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-top"><span>Bugungi progress</span><span id="prog-label">0/0</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="alert-area"></div>
+
+  <div class="section-title">TEZKOR AMALLAR</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 20px">
+    <button onclick="goPage('page-anime')" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-family:var(--sans);font-size:13px;cursor:pointer;text-align:left">
+      <div style="font-size:22px;margin-bottom:6px">📺</div>
+      <div style="font-weight:500">Anime taymeri</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">2 ta qism qoidasi</div>
+    </button>
+    <button onclick="goPage('page-vazifa')" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-family:var(--sans);font-size:13px;cursor:pointer;text-align:left">
+      <div style="font-size:22px;margin-bottom:6px">✅</div>
+      <div style="font-weight:500">Vazifalar</div>
+      <div id="vazifa-quick" style="font-size:11px;color:var(--muted);margin-top:2px">Yuklanyapti...</div>
+    </button>
+  </div>
+</div>
+
+<!-- JADVAL PAGE -->
+<div class="page" id="page-jadval">
+  <div class="page-title">Kun Jadvali</div>
+  <div class="day-pills">
+    <div class="day-pill active" onclick="switchDay(0)">Du–Ju</div>
+    <div class="day-pill" onclick="switchDay(1)">Shanba</div>
+    <div class="day-pill" onclick="switchDay(2)">Yakshanba</div>
+  </div>
+  <div class="tl" id="timeline-content"></div>
+</div>
+
+<!-- ANIME PAGE -->
+<div class="page" id="page-anime">
+  <div class="anime-page">
+    <div class="anime-hero">
+      <h2>ANIME TAYMERI</h2>
+      <p>Bir sessiyada maksimum <strong style="color:var(--warn)">2 ta qism</strong>.<br>Har qism taxminan 23 daqiqa.</p>
+    </div>
+
+    <div class="ep-counter" id="ep-counter">
+      <div class="ep-dot" id="ep1">1</div>
+      <div class="ep-dot" id="ep2">2</div>
+    </div>
+
+    <div class="timer-circle">
+      <svg class="timer-svg" viewBox="0 0 180 180" width="180" height="180">
+        <circle class="timer-bg" cx="90" cy="90" r="80"/>
+        <circle class="timer-fg" id="timer-arc" cx="90" cy="90" r="80" stroke-dasharray="502" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-num" id="timer-num">23:00</div>
+        <div class="timer-lbl" id="timer-lbl">tayyor</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-main primary" id="anime-start-btn" onclick="animeStartStop()">▶ Boshlash</button>
+      <button class="btn-main secondary" onclick="animeReset()">↺ Qayta</button>
+    </div>
+
+    <div class="anime-rule">
+      <p><strong>Qoida:</strong>
+        ✦ Har qism 23 daqiqa<br>
+        ✦ 2 qism bo'lgach — taymer bloklanadi<br>
+        ✦ Ertasi kuni taymer qayta tiklanadi<br>
+        ✦ Uyqu vaqti (22:00 dan keyin) — taymer ishlamaydi
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCKED OVERLAY -->
+<div class="blocked-overlay hidden" id="blocked-overlay">
+  <div class="blocked-big">🔒</div>
+  <h2>Sessiya tugadi!</h2>
+  <p>Siz bugungi 2 ta qismingizni ko'rdingiz.<br>Miyangizga dam bering.<br><br>Ertaga yana ko'rish imkoniyati ochiladi.</p>
+  <button class="btn-main primary" onclick="document.getElementById('blocked-overlay').classList.add('hidden')">Tushundim</button>
+</div>
+
+<!-- ALARM POPUP -->
+<div class="alarm-popup hidden" id="alarm-popup">
+  <div class="alarm-icon">🌙</div>
+  <h2 id="alarm-title">Bomdod vaqti!</h2>
+  <p id="alarm-msg">Alloh sizni sog'-salomat saqlasun.<br>Turing va namoz o'qing!</p>
+  <button class="btn-dismiss" onclick="dismissAlarm()">Uyg'ondim ✓</button>
+</div>
+
+<!-- DARS WARNING -->
+<div class="dars-warning" id="dars-warn">
+  <div class="dw-icon">📚</div>
+  <div class="dw-text"><strong>Siz hozir darsdasiz!</strong><br>Telefonni qo'ying, e'tiboringizni darsga qarating.</div>
+  <button class="dw-close" onclick="this.parentElement.classList.remove('show')">✕</button>
+</div>
+
+<!-- VAZIFALAR PAGE -->
+<div class="page" id="page-vazifa">
+  <div class="page-title">Vazifalar</div>
+  <div style="padding:0 16px 16px">
+    <div class="seg-tabs">
+      <button class="seg-tab active" onclick="switchVazifaTab('bugun')">Bugun</button>
+      <button class="seg-tab" onclick="switchVazifaTab('dars')">Dars vazifalari</button>
+      <button class="seg-tab" onclick="switchVazifaTab('python')">Python</button>
+    </div>
+    <div class="vazifa-input-row">
+      <input class="vazifa-input" id="v-input" placeholder="Yangi vazifa qo'shish..." onkeydown="if(event.key==='Enter')addVazifa()">
+      <button class="vazifa-add-btn" onclick="addVazifa()">+</button>
+    </div>
+    <div class="vazifa-list" id="vazifa-list"></div>
+  </div>
+</div>
+
+<!-- SOZLAMALAR PAGE -->
+<div class="page" id="page-sozlama">
+  <div class="page-title">Sozlamalar</div>
+  <div style="padding:0 16px">
+
+    <div class="soz-card">
+      <h3>BUDILNIKLAR</h3>
+      <div class="soz-row">
+        <div><div class="soz-label">Bomdod</div><div class="soz-sub">Namozdan oldin uyg'otadi</div></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="time" value="04:20" id="alarm-bomdod" class="soz-time" onchange="saveAlarms()">
+          <div class="toggle on" id="tog-bomdod" onclick="toggleSetting('tog-bomdod')"></div>
+        </div>
+      </div>
+      <div class="soz-row">
+        <div><div class="soz-label">Uyg'onish</div><div class="soz-sub">Ikkinchi uyg'onish</div></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="time" value="06:30" id="alarm-uygon" class="soz-time" onchange="saveAlarms()">
+          <div class="toggle on" id="tog-uygon" onclick="toggleSetting('tog-uygon')"></div>
+        </div>
+      </div>
+      <div class="soz-row">
+        <div><div class="soz-label">Uyqu vaqti</div><div class="soz-sub">Eslatma</div></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="time" value="22:00" id="alarm-uyqu" class="soz-time" onchange="saveAlarms()">
+          <div class="toggle on" id="tog-uyqu" onclick="toggleSetting('tog-uyqu')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="soz-card">
+      <h3>ESLATMALAR</h3>
+      <div class="soz-row">
+        <div><div class="soz-label">Dars vaqti ogohlantiruv</div><div class="soz-sub">8:30–13:30 da telefon ogohlantiruvi</div></div>
+        <div class="toggle on" id="tog-dars" onclick="toggleSetting('tog-dars')"></div>
+      </div>
+      <div class="soz-row">
+        <div><div class="soz-label">Qur'on eslatmasi</div><div class="soz-sub">Bomdoddan keyin</div></div>
+        <div class="toggle on" id="tog-quron" onclick="toggleSetting('tog-quron')"></div>
+      </div>
+      <div class="soz-row">
+        <div><div class="soz-label">Kitob o'qish</div><div class="soz-sub">Kechqurun 18:00 da</div></div>
+        <div class="toggle on" id="tog-kitob" onclick="toggleSetting('tog-kitob')"></div>
+      </div>
+      <div class="soz-row">
+        <div><div class="soz-label">Python sessiyasi</div><div class="soz-sub">Darsdan keyin eslatma</div></div>
+        <div class="toggle on" id="tog-python" onclick="toggleSetting('tog-python')"></div>
+      </div>
+    </div>
+
+    <div class="soz-card">
+      <h3>ANIME CHEGARASI</h3>
+      <div class="soz-row">
+        <div><div class="soz-label">Bir sessiyada</div><div class="soz-sub">Maksimum qismlar soni</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="changeEpLimit(-1)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px">−</button>
+          <span id="ep-limit-val" style="font-family:var(--mono);font-size:16px;font-weight:700;min-width:24px;text-align:center;color:var(--accent)">2</span>
+          <button onclick="changeEpLimit(1)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="soz-card">
+      <h3>BILDIRISHNOMALAR</h3>
+      <div class="soz-row">
+        <div><div class="soz-label">Brauzer bildirishnomalari</div><div class="soz-sub">Eslatmalar uchun ruxsat</div></div>
+        <button onclick="requestNotifPerm()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:8px 14px;font-size:12px;cursor:pointer;font-family:var(--sans)" id="notif-btn">Ruxsat berish</button>
+      </div>
+    </div>
+
+    <p style="font-size:11px;color:var(--muted);text-align:center;padding:12px 0 4px;line-height:1.6">
+      Barcha ma'lumotlar faqat qurilmangizda saqlanadi.<br>Versiya 1.0 — Kun Tartibi Yordamchi
+    </p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goPage('page-home')" id="nav-home">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Bosh
+  </button>
+  <button class="nav-btn" onclick="goPage('page-jadval')" id="nav-jadval">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Jadval
+  </button>
+  <button class="nav-btn" onclick="goPage('page-anime')" id="nav-anime">
+    <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    Anime
+  </button>
+  <button class="nav-btn" onclick="goPage('page-vazifa')" id="nav-vazifa">
+    <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Vazifa
+  </button>
+  <button class="nav-btn" onclick="goPage('page-sozlama')" id="nav-sozlama">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Sozlama
+  </button>
+</nav>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const SCHEDULE = [
+  { sections: [
+    { title: "ERTALAB", items: [
+      { t:"04:20", title:"Bomdod namozi", sub:"Uyg'on va namoz o'qi", type:"ibod" },
+      { t:"05:00", title:"Qur'on o'qish", sub:"15–20 daqiqa", type:"new" },
+      { t:"05:20", title:"Qisqa uyqu", sub:"Maksimum 1 soat", type:"warn" },
+      { t:"06:30", title:"Uyg'on & nonushta", sub:"Nonushta tayyorla", type:"normal" },
+      { t:"07:00", title:"Sport (uy mashqlari)", sub:"15–20 daqiqa", type:"new" },
+      { t:"07:30", title:"Kiyinish & yo'lga chiqish", sub:"Uzog'i 7:40 da uydan chiq", type:"normal" },
+    ]},
+    { title: "INSTITUT", items: [
+      { t:"08:10", title:"Institutga yetib kelish", sub:"Dars 8:30 da boshlanadi", type:"dars" },
+      { t:"08:30", title:"1-dars (80 daqiqa)", sub:"E'tibor darsda — telefon qo'y", type:"dars" },
+      { t:"09:50", title:"10 daqiqa tanaffus", sub:"Suv ich, oyoqlarni yoz", type:"normal" },
+      { t:"10:00", title:"2-dars (80 daqiqa)", sub:"E'tibor darsda", type:"dars" },
+      { t:"11:20", title:"Katta tanaffus (40 daqiqa)", sub:"Ovqat + 10 daqiqa Python", type:"new" },
+      { t:"12:00", title:"3-dars (80 daqiqa)", sub:"", type:"dars" },
+    ]},
+    { title: "DARSDAN KEYIN", items: [
+      { t:"13:30", title:"Uy vazifalari (majburiy)", sub:"1.5–2 soat, anime yo'q!", type:"warn" },
+      { t:"15:30", title:"Python / dasturlash", sub:"30–45 daqiqa", type:"new" },
+      { t:"16:15", title:"Uyga yo'l", sub:"~40 daqiqa", type:"normal" },
+    ]},
+    { title: "KECHQURUN", items: [
+      { t:"17:00", title:"Uy ishlari", sub:"Asr dan oldin", type:"normal" },
+      { t:"18:00", title:"Kitob o'qish", sub:"20–30 daqiqa", type:"new" },
+      { t:"18:30", title:"Kechki ovqat", sub:"", type:"normal" },
+      { t:"19:00", title:"Anime (chegaralangan)", sub:"Maksimum 2 ta qism", type:"limit" },
+      { t:"20:00", title:"Erkin vaqt", sub:"Ijtimoiy tarmoq — max 30 daqiqa", type:"limit" },
+      { t:"21:30", title:"Xufton namozi + Qur'on", sub:"Uxlashdan oldin", type:"ibod" },
+      { t:"22:00", title:"Uxlash", sub:"Bomdod uchun 6 soat", type:"normal" },
+    ]}
+  ]},
+  { sections: [
+    { title: "ERTALAB", items: [
+      { t:"04:20", title:"Bomdod namozi", sub:"", type:"ibod" },
+      { t:"05:00", title:"Qur'on o'qish", sub:"30 daqiqa", type:"new" },
+      { t:"07:00", title:"Uyg'on & nonushta", sub:"", type:"normal" },
+      { t:"07:30", title:"Sport (to'liq)", sub:"30–45 daqiqa", type:"new" },
+    ]},
+    { title: "KUN", items: [
+      { t:"09:00", title:"Python / dasturlash", sub:"1–1.5 soat", type:"new" },
+      { t:"11:00", title:"Kitob o'qish", sub:"45 daqiqa", type:"new" },
+      { t:"12:00", title:"Uy ishlari", sub:"", type:"normal" },
+      { t:"14:00", title:"Anime (dam olish)", sub:"Max 3 ta qism shanba kuni", type:"limit" },
+      { t:"16:30", title:"Sayr / sport", sub:"30 daqiqa yurish", type:"new" },
+      { t:"22:00", title:"Uxlash", sub:"", type:"normal" },
+    ]}
+  ]},
+  { sections: [
+    { title: "ERTALAB", items: [
+      { t:"04:20", title:"Bomdod namozi", sub:"", type:"ibod" },
+      { t:"06:00", title:"Qur'on (haftalik takror)", sub:"30–45 daqiqa", type:"new" },
+      { t:"08:00", title:"Kech uyg'on / nonushta", sub:"Dam olish kuni", type:"normal" },
+    ]},
+    { title: "KUN", items: [
+      { t:"10:00", title:"Haftalik rejani ko'rib chiq", sub:"Nima bajardim? Nima qoldi?", type:"new" },
+      { t:"11:00", title:"Python — loyiha / takrorlash", sub:"1 soat", type:"new" },
+      { t:"14:00", title:"Erkin vaqt", sub:"Anime, do'stlar, oila", type:"normal" },
+      { t:"22:00", title:"Uxlash", sub:"Dushanba uchun tayyor bo'l", type:"normal" },
+    ]}
+  ]}
+];
+
+const TYPE_COLOR = { ibod:"#6c63ff", new:"#69f0ae", dars:"#4ecdc4", warn:"#f9a825", limit:"#ff5252", normal:"rgba(255,255,255,0.2)" };
+const TYPE_CLASS = { new:"new-task", warn:"warn-task", dars:"dars-task", ibod:"ibod-task", limit:"limit-task", normal:"" };
+const BADGE_CLASS = { new:"new-b", warn:"warn-b", dars:"dars-b", ibod:"ibod-b", limit:"limit-b" };
+const BADGE_LABEL = { new:"Yangi", warn:"Diqqat", dars:"Dars", ibod:"Ibodat", limit:"Chegara" };
+
+// ─── STATE ───────────────────────────────────────────────
+let state = {
+  checked: {}, currentDay: 0,
+  vazifalar: { bugun: [], dars: [], python: [] },
+  vazifaTab: 'bugun',
+  settings: { togBomdod:true, togUygon:true, togUyqu:true, togDars:true, togQuron:true, togKitob:true, togPython:true },
+  anime: { episodes: 0, limit: 2, running: false, secondsLeft: 23*60, interval: null, todayDate: '' },
+  alarms: { bomdod:"04:20", uygon:"06:30", uyqu:"22:00" }
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('kt_state');
+    if (saved) {
+      const s = JSON.parse(saved);
+      Object.assign(state, s);
+      // reset anime if new day
+      const today = new Date().toDateString();
+      if (state.anime.todayDate !== today) {
+        state.anime.episodes = 0;
+        state.anime.running = false;
+        state.anime.secondsLeft = 23*60;
+        state.anime.interval = null;
+        state.anime.todayDate = today;
+      }
+    } else {
+      state.anime.todayDate = new Date().toDateString();
+    }
+  } catch(e) {}
+}
+function saveState() {
+  try { localStorage.setItem('kt_state', JSON.stringify(state)); } catch(e) {}
+}
+
+// ─── NAV ─────────────────────────────────────────────────
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const map = {'page-home':'nav-home','page-jadval':'nav-jadval','page-anime':'nav-anime','page-vazifa':'nav-vazifa','page-sozlama':'nav-sozlama'};
+  const navId = map[id];
+  if (navId) document.getElementById(navId).classList.add('active');
+  if (id === 'page-jadval') renderTimeline(state.currentDay);
+  if (id === 'page-vazifa') renderVazifalar();
+  if (id === 'page-home') { updateStats(); updateCurrentBlock(); updateAlert(); }
+  if (id === 'page-anime') renderAnime();
+}
+
+// ─── CLOCK ───────────────────────────────────────────────
+const DAYS_UZ = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+const MONTHS_UZ = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m;
+  document.getElementById('datestr').textContent = DAYS_UZ[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS_UZ[now.getMonth()] + ' ' + now.getFullYear();
+  const g = now.getHours();
+  document.getElementById('greeting').textContent = g < 5 ? "YAXSHI TUN" : g < 12 ? "ASSALOMU ALAYKUM" : g < 17 ? "XAYRLI KUN" : g < 21 ? "XAYRLI OQSHOM" : "YAXSHI TUN";
+  checkAlarms(now);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── CURRENT BLOCK ────────────────────────────────────────
+function timeToMins(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+function updateCurrentBlock() {
+  const now = new Date();
+  const cur = now.getHours()*60 + now.getMinutes();
+  const dow = now.getDay();
+  const dayIdx = (dow === 0) ? 2 : (dow === 6) ? 1 : 0;
+  const day = SCHEDULE[dayIdx];
+  let found = null, next = null;
+  const allItems = day.sections.flatMap(s => s.items);
+  for (let i = 0; i < allItems.length; i++) {
+    const start = timeToMins(allItems[i].t);
+    const end = i+1 < allItems.length ? timeToMins(allItems[i+1].t) : start+60;
+    if (cur >= start && cur < end) { found = allItems[i]; next = allItems[i+1]||null; break; }
+    if (cur < start && !next) { next = allItems[i]; }
+  }
+  const item = found || next;
+  if (!item) return;
+  document.getElementById('cb-title').textContent = item.title;
+  document.getElementById('cb-sub').textContent = item.sub + (next && found ? ' · Keyin: ' + next.title : '');
+  const ba = document.getElementById('cb-badge');
+  if (BADGE_LABEL[item.type]) {
+    ba.innerHTML = `<span class="cb-badge ${item.type === 'warn' ? 'warn' : item.type === 'dars' ? 'dars' : 'ibod'}">${found ? '▶ Hozir' : '⏭ Keyingi'}: ${item.t} — ${item.title}</span>`;
+  } else { ba.innerHTML = ''; }
+}
+
+// ─── ALERT ───────────────────────────────────────────────
+function updateAlert() {
+  const now = new Date();
+  const cur = now.getHours()*60 + now.getMinutes();
+  const el = document.getElementById('alert-area');
+  let html = '';
+  if (cur >= 8*60+30 && cur < 13*60+30 && state.settings.togDars) {
+    html = `<div class="alert-banner dars"><span>📚</span><div class="alert-text"><strong>Dars vaqti!</strong>Telefon qo'ying, e'tiboringizni darsga qarating.</div></div>`;
+  } else if (cur >= 19*60 && cur < 20*60) {
+    html = `<div class="alert-banner warn"><span>📺</span><div class="alert-text"><strong>Anime vaqti</strong>Esda tuting: maksimum 2 ta qism!</div></div>`;
+  } else if (cur >= 21*60+30 && cur < 22*60) {
+    html = `<div class="alert-banner ibod"><span>🌙</span><div class="alert-text"><strong>Xufton namozi vaqti</strong>Namoz o'qing va yotishga tayyorlaning.</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ─── STATS ───────────────────────────────────────────────
+function updateStats() {
+  const dow = new Date().getDay();
+  const dayIdx = (dow === 0) ? 2 : (dow === 6) ? 1 : 0;
+  const day = SCHEDULE[dayIdx];
+  const allItems = day.sections.flatMap(s => s.items);
+  let done = 0;
+  allItems.forEach((item, i) => { if (state.checked[`${dayIdx}_${i}`]) done++; });
+  const total = allItems.length;
+  const left = total - done;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-left').textContent = left;
+  document.getElementById('s-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = done + '/' + total;
+  // vazifa quick
+  const tab = state.vazifalar.bugun;
+  const vDone = tab.filter(v => v.done).length;
+  document.getElementById('vazifa-quick').textContent = vDone + '/' + tab.length + ' bajarildi';
+}
+
+// ─── TIMELINE ────────────────────────────────────────────
+let curDayIdx = 0;
+function switchDay(idx) {
+  curDayIdx = idx;
+  state.currentDay = idx;
+  document.querySelectorAll('.day-pill').forEach((p,i) => p.classList.toggle('active', i===idx));
+  renderTimeline(idx);
+  saveState();
+}
+
+function renderTimeline(dayIdx) {
+  const day = SCHEDULE[dayIdx];
+  const dow = new Date().getDay();
+  const todayIdx = (dow === 0) ? 2 : (dow === 6) ? 1 : 0;
+  let globalIdx = 0;
+  let html = '';
+  day.sections.forEach(sec => {
+    html += `<div class="tl-sec"><div class="tl-sec-title">${sec.title}</div>`;
+    sec.items.forEach(item => {
+      const gIdx = globalIdx++;
+      const key = `${dayIdx}_${gIdx}`;
+      const isDone = !!state.checked[key];
+      const dotColor = TYPE_COLOR[item.type] || TYPE_COLOR.normal;
+      const cardClass = TYPE_CLASS[item.type] || '';
+      const badge = BADGE_LABEL[item.type] ? `<span class="tl-badge ${BADGE_CLASS[item.type]}">${BADGE_LABEL[item.type]}</span>` : '';
+      html += `<div class="tl-item">
+        <div class="tl-time">${item.t}</div>
+        <div class="tl-line">
+          <div class="tl-dot" style="background:${dotColor}"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-card ${cardClass} ${isDone?'done':''}" onclick="toggleCheck(${dayIdx},${gIdx})">
+          <div class="tl-top">
+            <span class="tl-title">${item.title}</span>
+            <div style="display:flex;gap:6px;align-items:center">${badge}<span class="tl-check${isDone?' done':''}">  ${isDone?'✓':'○'}</span></div>
+          </div>
+          ${item.sub ? `<div class="tl-sub">${item.sub}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('timeline-content').innerHTML = html;
+}
+
+function toggleCheck(dayIdx, itemIdx) {
+  const key = `${dayIdx}_${itemIdx}`;
+  state.checked[key] = !state.checked[key];
+  saveState();
+  renderTimeline(dayIdx);
+  updateStats();
+}
+
+// ─── ANIME ───────────────────────────────────────────────
+const EP_SECS = 23 * 60;
+const CIRCUMFERENCE = 2 * Math.PI * 80;
+
+function renderAnime() {
+  const a = state.anime;
+  const ep1 = document.getElementById('ep1');
+  const ep2 = document.getElementById('ep2');
+  ep1.className = 'ep-dot' + (a.episodes >= 1 ? ' watched' : a.running && a.episodes === 0 ? ' current' : '');
+  ep2.className = 'ep-dot' + (a.episodes >= 2 ? ' watched' : a.running && a.episodes === 1 ? ' current' : '');
+  const secs = a.secondsLeft;
+  const m = String(Math.floor(secs/60)).padStart(2,'0');
+  const s = String(secs%60).padStart(2,'0');
+  document.getElementById('timer-num').textContent = m + ':' + s;
+  document.getElementById('timer-lbl').textContent = a.running ? 'davom etmoqda' : secs === EP_SECS ? 'tayyor' : 'to\'xtatildi';
+  const ratio = secs / EP_SECS;
+  const offset = CIRCUMFERENCE * (1 - ratio);
+  document.getElementById('timer-arc').style.strokeDashoffset = offset;
+  document.getElementById('timer-arc').style.stroke = a.episodes >= a.limit ? 'var(--danger)' : 'var(--accent)';
+  document.getElementById('anime-start-btn').textContent = a.running ? '⏸ To\'xtat' : '▶ Boshlash';
+  if (a.episodes >= a.limit) {
+    document.getElementById('blocked-overlay').classList.remove('hidden');
+  }
+}
+
+function animeStartStop() {
+  const a = state.anime;
+  if (a.episodes >= a.limit) { document.getElementById('blocked-overlay').classList.remove('hidden'); return; }
+  const now = new Date().getHours();
+  if (now >= 22 || now < 4) { alert("Uyqu vaqti! Anime ko'rish vaqti emas. Ertaga ko'ring 😊"); return; }
+  if (a.running) {
+    clearInterval(a.interval); a.interval = null; a.running = false;
+  } else {
+    a.running = true;
+    a.interval = setInterval(() => {
+      state.anime.secondsLeft--;
+      if (state.anime.secondsLeft <= 0) {
+        clearInterval(state.anime.interval); state.anime.interval = null;
+        state.anime.running = false;
+        state.anime.episodes++;
+        state.anime.secondsLeft = EP_SECS;
+        saveState(); renderAnime();
+        if (state.anime.episodes >= state.anime.limit) {
+          notify("Anime sessiyasi tugadi!", "Siz " + state.anime.limit + " ta qism ko'rdingiz. Dam oling!");
+        } else {
+          notify("Qism tugadi!", "Yana " + (state.anime.limit - state.anime.episodes) + " ta qism qoldi.");
+        }
+        return;
+      }
+      saveState(); renderAnime();
+    }, 1000);
+  }
+  saveState(); renderAnime();
+}
+
+function animeReset() {
+  const a = state.anime;
+  if (a.running) { clearInterval(a.interval); a.interval = null; a.running = false; }
+  a.secondsLeft = EP_SECS;
+  saveState(); renderAnime();
+}
+
+function changeEpLimit(delta) {
+  state.anime.limit = Math.max(1, Math.min(4, state.anime.limit + delta));
+  document.getElementById('ep-limit-val').textContent = state.anime.limit;
+  saveState();
+}
+
+// ─── VAZIFALAR ───────────────────────────────────────────
+function switchVazifaTab(tab) {
+  state.vazifaTab = tab;
+  document.querySelectorAll('.seg-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['bugun','dars','python'][i] === tab);
+  });
+  const inp = document.getElementById('v-input');
+  inp.placeholder = tab === 'dars' ? "Ustoz bergan vazifa..." : tab === 'python' ? "Python topshiriq..." : "Bugungi vazifa...";
+  renderVazifalar();
+}
+
+function addVazifa() {
+  const inp = document.getElementById('v-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const tab = state.vazifaTab;
+  state.vazifalar[tab].push({ id: Date.now(), text, done: false, time: new Date().toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'}) });
+  inp.value = '';
+  saveState(); renderVazifalar(); updateStats();
+}
+
+function toggleVazifa(tab, id) {
+  const item = state.vazifalar[tab].find(v => v.id === id);
+  if (item) { item.done = !item.done; saveState(); renderVazifalar(); updateStats(); }
+}
+
+function deleteVazifa(tab, id) {
+  state.vazifalar[tab] = state.vazifalar[tab].filter(v => v.id !== id);
+  saveState(); renderVazifalar(); updateStats();
+}
+
+function renderVazifalar() {
+  const tab = state.vazifaTab;
+  const list = state.vazifalar[tab];
+  const el = document.getElementById('vazifa-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>Hali vazifa yo'q. Yuqoridan qo'shing!</div>`;
+    return;
+  }
+  el.innerHTML = list.map(v => `
+    <div class="v-item">
+      <div class="v-check${v.done?' done-v':''}" onclick="toggleVazifa('${tab}',${v.id})">
+        ${v.done ? '✓' : ''}
+      </div>
+      <div style="flex:1">
+        <div class="v-text${v.done?' done-v':''}">${v.text}</div>
+        <div class="v-meta">${v.time}</div>
+      </div>
+      <button class="v-del" onclick="deleteVazifa('${tab}',${v.id})">×</button>
+    </div>`).join('');
+}
+
+// ─── ALARMS ──────────────────────────────────────────────
+let lastAlarmFired = {};
+function checkAlarms(now) {
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const cur = h+':'+m;
+  const alarms = [
+    { key:'bomdod', time: state.alarms.bomdod, enabled: state.settings.togBomdod, title:"Bomdod vaqti!", msg:"Uring va namoz o'qing! Alloh sizni sog'-salomat saqlasun." },
+    { key:'uygon', time: state.alarms.uygon, enabled: state.settings.togUygon, title:"Uyg'onish vaqti!", msg:"Nonushta tayyorlang va institutga tayyorlaning." },
+    { key:'uyqu', time: state.alarms.uyqu, enabled: state.settings.togUyqu, title:"Uyqu vaqti!", msg:"Ertaga barakali kun uchun hozir yoting." },
+    { key:'kitob', time: '18:00', enabled: state.settings.togKitob, title:"Kitob o'qish vaqti!", msg:"20–30 daqiqa kitob o'qing. Miyangizni ozuqlantiring." },
+  ];
+  alarms.forEach(a => {
+    if (a.enabled && cur === a.time && lastAlarmFired[a.key] !== cur) {
+      lastAlarmFired[a.key] = cur;
+      showAlarm(a.title, a.msg);
+      notify(a.title, a.msg);
+    }
+  });
+  // dars warning
+  const mins = now.getHours()*60+now.getMinutes();
+  const inDars = state.settings.togDars && mins >= 8*60+30 && mins < 13*60+30;
+  if (inDars && mins % 15 === 0 && lastAlarmFired['dars'] !== cur) {
+    lastAlarmFired['dars'] = cur;
+    document.getElementById('dars-warn').classList.add('show');
+    setTimeout(() => document.getElementById('dars-warn').classList.remove('show'), 8000);
+  }
+}
+
+function showAlarm(title, msg) {
+  document.getElementById('alarm-title').textContent = title;
+  document.getElementById('alarm-msg').textContent = msg;
+  document.getElementById('alarm-popup').classList.remove('hidden');
+}
+function dismissAlarm() { document.getElementById('alarm-popup').classList.add('hidden'); }
+
+// ─── NOTIFICATIONS ───────────────────────────────────────
+function notify(title, body) {
+  if (Notification.permission === 'granted') {
+    try { new Notification(title, { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png' }); } catch(e) {}
+  }
+}
+function requestNotifPerm() {
+  Notification.requestPermission().then(p => {
+    document.getElementById('notif-btn').textContent = p === 'granted' ? '✓ Ruxsat berildi' : 'Rad etildi';
+  });
+}
+if (Notification.permission === 'granted') {
+  document.getElementById('notif-btn').textContent = '✓ Ruxsat berildi';
+}
+
+// ─── SETTINGS ────────────────────────────────────────────
+function toggleSetting(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on');
+  const key = id.replace('tog-','').replace('-','');
+  const keyMap = {'togbomdod':'togBomdod','toguygon':'togUygon','toguyqu':'togUyqu','togdars':'togDars','togquron':'togQuron','togkitob':'togKitob','togpython':'togPython'};
+  const stateKey = keyMap[key.toLowerCase()] || key;
+  state.settings[stateKey] = el.classList.contains('on');
+  saveState();
+}
+function saveAlarms() {
+  state.alarms.bomdod = document.getElementById('alarm-bomdod').value;
+  state.alarms.uygon = document.getElementById('alarm-uygon').value;
+  state.alarms.uyqu = document.getElementById('alarm-uyqu').value;
+  saveState();
+}
+
+// ─── INIT ────────────────────────────────────────────────
+loadState();
+document.getElementById('alarm-bomdod').value = state.alarms.bomdod || '04:20';
+document.getElementById('alarm-uygon').value = state.alarms.uygon || '06:30';
+document.getElementById('alarm-uyqu').value = state.alarms.uyqu || '22:00';
+document.getElementById('ep-limit-val').textContent = state.anime.limit;
+Object.entries(state.settings).forEach(([k,v]) => {
+  const mapRev = {togBomdod:'tog-bomdod',togUygon:'tog-uygon',togUyqu:'tog-uyqu',togDars:'tog-dars',togQuron:'tog-quron',togKitob:'tog-kitob',togPython:'tog-python'};
+  const elId = mapRev[k]; if (elId) { const el = document.getElementById(elId); if(el){ el.classList.toggle('on',v); }}
+});
+
+updateCurrentBlock();
+updateStats();
+updateAlert();
+setInterval(() => { updateCurrentBlock(); updateStats(); updateAlert(); }, 60000);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
