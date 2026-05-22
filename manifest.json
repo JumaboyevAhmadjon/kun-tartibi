@@ -2,13 +2,24 @@
   "name": "Kun Tartibi — Shaxsiy Yordamchi",
   "short_name": "Kun Tartibi",
   "description": "Shaxsiy kun tartibi va vazifalar yordamchisi",
-  "start_url": "/kun-tartibi/",
+  "start_url": "/kun-tartibi/index.html",
+  "scope": "/kun-tartibi/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
   "orientation": "portrait",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { 
+      "src": "/kun-tartibi/icons/icon-192.png", 
+      "sizes": "192x192", 
+      "type": "image/png", 
+      "purpose": "any maskable" 
+    },
+    { 
+      "src": "/kun-tartibi/icons/icon-512.png", 
+      "sizes": "512x512", 
+      "type": "image/png", 
+      "purpose": "any maskable" 
+    }
   ]
 }
