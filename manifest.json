@@ -2,7 +2,7 @@
   "name": "Kun Tartibi — Shaxsiy Yordamchi",
   "short_name": "Kun Tartibi",
   "description": "Shaxsiy kun tartibi va vazifalar yordamchisi",
-  "start_url": "/",
+  "start_url": "/kun-tartibi/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
